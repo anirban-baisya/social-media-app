@@ -1,43 +1,38 @@
-import React, { useRef } from 'react'
-import { onSnapshot, collection, doc, setDoc, serverTimestamp, getDoc } from "firebase/firestore";
+import { collection, doc, getDoc, onSnapshot, setDoc } from "firebase/firestore";
+import React, { useRef } from 'react';
 import db from "../services/firebase";
 
 import {
     Avatar,
     Button,
     ButtonGroup,
-    Fab,
-    Modal,
-    Stack,
-    styled,
-    TextField,
-    Tooltip,
-    Typography,
+    Card,
+    CardMedia,
     Checkbox,
+    Dialog,
+    DialogActions,
+    DialogContent,
+    DialogTitle,
+    FormControl,
+    IconButton,
     List,
     ListItem,
     ListItemAvatar,
     ListItemButton,
     ListItemText,
     ListSubheader,
-    Dialog,
-    DialogTitle,
-    DialogContent,
-    FormControl,
-    DialogActions,
-    IconButton,
-    Card,
-    CardMedia
+    Stack,
+    TextField,
+    Typography,
+    styled
 } from "@mui/material";
 
 
 import {
-    Add as AddIcon,
-    DateRange,
     EmojiEmotions,
     Image,
     PersonAdd,
-    VideoCameraBack,
+    VideoCameraBack
 } from "@mui/icons-material";
 import { Box } from "@mui/system";
 import moment from 'moment';
@@ -136,7 +131,6 @@ export default function CreatePost({setFetchedPostDetails} :any) {
 
         setChecked(newChecked);
     };
-    console.log(checked,'checkedList----');
 
     const handleClickOpen = () => {
         setOpen(true);
@@ -162,7 +156,6 @@ export default function CreatePost({setFetchedPostDetails} :any) {
             const userList:any =  await getDoc(usersRef);
            const userInfo = userList?.data()
             const postDetails:any = snapshot.docs.map((doc:any) => { return { ...doc.data() , 'name': userInfo.username } } )
-            console.log(postDetails,'userInfo -')
             return setFetchedPostDetails(postDetails)
           })
   
@@ -191,46 +184,20 @@ export default function CreatePost({setFetchedPostDetails} :any) {
         const usersRef = doc(db, "users", getUInfofromStorage('email') ) // getting user
         const userList:any =  await getDoc(usersRef);
         const userInfo = userList?.data()
-        console.log(userList, 'userInfo ---')
      });
 
     React.useEffect(() =>{
 
             // console.log(moment().format("DD-MM-YYYY hh:mm a"), 'time ---')
-            console.log(moment('01-05-2023 12:06 am').format("MM MMM [at] hh:mm a"), 'time ---')
-        //01-05-2023 12:06 am
-        //   onSnapshot(collection(db, "users"), (snapshot) =>
-        //     (snapshot.docs.map((doc) => (
-            //         //  ...doc.data(), 
-            //         console.log(doc,'23456')
-            
-            //         ))) 
-            //   )
-            // onSnapshot(collection(db, "colors"), (snapshot) =>
-            //     console.log(snapshot.docs.map((doc) => doc.data()))
-            //     // console.log(snapshot.docs, 'snapshot ---')
-            // )
+            // console.log(moment('01-05-2023 12:06 am').format("MM MMM [at] hh:mm a"), 'time ---')
             getAllUserList()
             getFollowerList()
         }, []
     );
 
-    // function addPost(params) {
-
-    // }
     const addPost = (async () => {
-        console.log('23456789');
-        // onSnapshot(collection(db, "colors"), (snapshot) =>
-        // console.log( snapshot.docs.map((doc) =>  doc.data() )  )
-        //     // console.log(snapshot.docs, 'snapshot ---')
-        // )
-        // console.log(getUInfofromStorage('email'),'----');
-        // const base64img = "data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAABgAAAAYCAYAAADgdz34AAAABHNCSVQICAgIfAhkiAAAAAlwSFlzAAAApgAAAKYB3X3/OAAAABl0RVh0U29mdHdhcmUAd3d3Lmlua3NjYXBlLm9yZ5vuPBoAAANCSURBVEiJtZZPbBtFFMZ/M7ubXdtdb1xSFyeilBapySVU8h8OoFaooFSqiihIVIpQBKci6KEg9Q6H9kovIHoCIVQJJCKE1ENFjnAgcaSGC6rEnxBwA04Tx43t2FnvDAfjkNibxgHxnWb2e/u992bee7tCa00YFsffekFY+nUzFtjW0LrvjRXrCDIAaPLlW0nHL0SsZtVoaF98mLrx3pdhOqLtYPHChahZcYYO7KvPFxvRl5XPp1sN3adWiD1ZAqD6XYK1b/dvE5IWryTt2udLFedwc1+9kLp+vbbpoDh+6TklxBeAi9TL0taeWpdmZzQDry0AcO+jQ12RyohqqoYoo8RDwJrU+qXkjWtfi8Xxt58BdQuwQs9qC/afLwCw8tnQbqYAPsgxE1S6F3EAIXux2oQFKm0ihMsOF71dHYx+f3NND68ghCu1YIoePPQN1pGRABkJ6Bus96CutRZMydTl+TvuiRW1m3n0eDl0vRPcEysqdXn+jsQPsrHMquGeXEaY4Yk4wxWcY5V/9scqOMOVUFthatyTy8QyqwZ+kDURKoMWxNKr2EeqVKcTNOajqKoBgOE28U4tdQl5p5bwCw7BWquaZSzAPlwjlithJtp3pTImSqQRrb2Z8PHGigD4RZuNX6JYj6wj7O4TFLbCO/Mn/m8R+h6rYSUb3ekokRY6f/YukArN979jcW+V/S8g0eT/N3VN3kTqWbQ428m9/8k0P/1aIhF36PccEl6EhOcAUCrXKZXXWS3XKd2vc/TRBG9O5ELC17MmWubD2nKhUKZa26Ba2+D3P+4/MNCFwg59oWVeYhkzgN/JDR8deKBoD7Y+ljEjGZ0sosXVTvbc6RHirr2reNy1OXd6pJsQ+gqjk8VWFYmHrwBzW/n+uMPFiRwHB2I7ih8ciHFxIkd/3Omk5tCDV1t+2nNu5sxxpDFNx+huNhVT3/zMDz8usXC3ddaHBj1GHj/As08fwTS7Kt1HBTmyN29vdwAw+/wbwLVOJ3uAD1wi/dUH7Qei66PfyuRj4Ik9is+hglfbkbfR3cnZm7chlUWLdwmprtCohX4HUtlOcQjLYCu+fzGJH2QRKvP3UNz8bWk1qMxjGTOMThZ3kvgLI5AzFfo379UAAAAASUVORK5CYII="
-        // const docRef = doc(db, 'users',getUInfofromStorage('email'), 'posts');
-        // const docRef = doc(db, 'users','test@gmail.com');
         const getData = doc(collection(db, "users", getUInfofromStorage('email'), "posts"))
         
-        // const ref = doc(docRef,'posts');
         const payload = { desc: createPostData.content , img: createPostData.base64Img , createdAt: moment().format("DD-MM-YYYY hh:mm a"), taggedPerson: checked }
         await setDoc(getData, payload)
         .then(e =>{
@@ -261,12 +228,7 @@ export default function CreatePost({setFetchedPostDetails} :any) {
             console.log(e,'errr')
         
     })
-        // await addDoc(collection(users, 'SF', 'landmarks'), {
-        //     name: 'Golden Gate Bridge',
-        //     type: 'bridge'
-        // }),
-        // setDoc(doc(db, "users" , 'posts','test@gmail.com' ), payload)
-        // setCreatePostData({ content:'' , base64Img: '' })
+        
     });
 
     const onImgUpload = async (e: any) => {
@@ -275,12 +237,8 @@ export default function CreatePost({setFetchedPostDetails} :any) {
         const imgBase64 = await getBase64(file);
         // setFiles(imgBase64)
         setCreatePostData({ ...createPostData, base64Img: imgBase64 })
-        // setProfileData({...profileData ,base64Img: imgBase64  })
     };
     
-    console.log(createPostData,'2345678----');
-
-    console.log(FollwerList,'FollwerList----');
 
     return (
         <>
@@ -384,7 +342,6 @@ export default function CreatePost({setFetchedPostDetails} :any) {
                         component="img"
                         height="250"
                         image={createPostData?.base64Img}
-                        // image={'https://images.unsplash.com/photo-1523413651479-597eb2da0ad6'}
                         alt={"alt"}
                         sx={{ objectFit: "contain" }}
                     />
@@ -403,9 +360,7 @@ export default function CreatePost({setFetchedPostDetails} :any) {
                     <IconButton aria-label="delete"onClick={() => ''}>
                         <VideoCameraBack color="success" />
                     </IconButton>
-                    {/* <Button onClick={handleClickOpen}>
-                        <PersonAdd color="error" />
-                    </Button> */}
+                  
                     <IconButton aria-label="delete" onClick={handleClickOpen}>
                         <PersonAdd color="error" />
                     </IconButton>

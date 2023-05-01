@@ -1,20 +1,18 @@
 import {
   Avatar,
-  AvatarGroup,
   Box,
   Button,
   Divider,
-  ImageList,
-  ImageListItem,
   List,
   ListItem,
   ListItemAvatar,
   ListItemText,
   Stack,
-  Typography,
+  Typography
 } from "@mui/material";
-import { collection, doc, getDoc, onSnapshot, updateDoc } from "firebase/firestore";
+import { arrayRemove, collection, doc, getDoc, onSnapshot, updateDoc } from "firebase/firestore";
 import React, { useState } from "react";
+import { toast } from "react-toastify";
 import { db } from "../services/firebase";
 
 const getUInfofromStorage = (type: any) => {
@@ -49,10 +47,7 @@ const Rightbar = () => {
     onSnapshot(collection(db, "users"), (snapshot) => { // get all users
       const setdata = snapshot.docs.map((doc) => ({ id: doc.id, ...doc.data() }))
       setAllUserList(setdata)
-      // console.log(setdata, 'setdata ---');
-
     })
-    // console.log(snapshot.docs, 'snapshot ---')
 
     getFollowerList();
 
@@ -61,37 +56,57 @@ const Rightbar = () => {
   );
 
 
-  const followFriend = (async (followingFriendId: any) => {
-    console.log('clicked ---');
-
-    // dataArr.push(followingFriendId)
-    // const getData = doc(collection(db, "users", getUInfofromStorage('email')))
-    // console.log(docRef,'2345678----');
-
-    // const ref = doc(docRef,'posts');
+  const followFriend = (async (followingFriendId: any , name:any) => {
 
     const usersRef = doc(db, "users", getUInfofromStorage('email')); //update user doc
 
     const getPreviousFollowingList: any = await getDoc(usersRef);
     let dataArr: any = []
-    // const getPreviousFollowers = getPreviousFollowingList?.data()?.followingFriend.map((data:any) => { return data  })
-    // console.log(getPreviousFollowingList?.data(),'friends -');
     getPreviousFollowingList?.data()?.followingFriend.map((doc: any) => {
       dataArr.push(doc)
     });
 
     dataArr.push(followingFriendId)
-    // console.log(dataArr,'dataArr');
 
     const payload = { followingFriend: dataArr }
-    await updateDoc(usersRef, payload); // update users doc
+    await updateDoc(usersRef, payload)// update users doc
+    .then(() =>{
+      toast.success(`Following ${name}`, {
+        position: "top-right",
+        autoClose: 5000,
+        hideProgressBar: false,
+        closeOnClick: true,
+        pauseOnHover: true,
+        draggable: true,
+        progress: undefined,
+        theme: "colored",
+    })
+      getFollowerList()
+    })
 
-    // await setDoc(getData, payload)
-    // await addDoc(collection(users, 'SF', 'landmarks'), {
-    //     name: 'Golden Gate Bridge',
-    //     type: 'bridge'
-    // }),
-    // setDoc(doc(db, "users" , 'posts','test@gmail.com' ), payload)
+  });
+
+  const unFollowFriend = (async (unfollowingFriendId: any, name:any) => {
+    const usersRef = doc(db, "users", getUInfofromStorage('email')); //update user doc
+
+      await updateDoc(usersRef, {
+      'followingFriend': arrayRemove(unfollowingFriendId)
+      })
+      .then(() =>{
+        toast.success(`Unfollow ${name}`, {
+          position: "top-right",
+          autoClose: 5000,
+          hideProgressBar: false,
+          closeOnClick: true,
+          pauseOnHover: true,
+          draggable: true,
+          progress: undefined,
+          theme: "colored",
+      })
+        getFollowerList()
+      })
+    
+
 
   });
 
@@ -108,17 +123,12 @@ const Rightbar = () => {
             <>
               <ListItem alignItems="flex-start"
                 secondaryAction={
-                  // <IconButton edge="end" aria-label="delete">
-                  //   <DeleteIcon />
-                  // </IconButton>
                   <Stack direction="column" gap={1} mt={2} mb={3}>
-                    <Button onClick={() => followFriend(item?.email)}>Follow</Button>
-                    {/* <Button>Follow</Button> */}
+                    <Button onClick={() => unFollowFriend(item?.email, item?.username)}>UnFollow</Button>
                   </Stack>
                 }
               >
                 <ListItemAvatar>
-                  {/* <Avatar alt="Trevor Henderson" src="https://material-ui.com/static/images/avatar/7.jpg" /> */}
                   <Avatar alt={item?.username || ''} src={item?.avatar || " "} />
                 </ListItemAvatar>
                 <ListItemText
@@ -159,17 +169,12 @@ const Rightbar = () => {
             <>
               <ListItem alignItems="flex-start"
                 secondaryAction={
-                  // <IconButton edge="end" aria-label="delete">
-                  //   <DeleteIcon />
-                  // </IconButton>
                   <Stack direction="column" gap={1} mt={2} mb={3}>
-                    <Button onClick={() => followFriend(item?.email)}>Follow</Button>
-                    {/* <Button>Follow</Button> */}
+                    <Button onClick={() => followFriend(item?.email, item?.username )}>Follow</Button>
                   </Stack>
                 }
               >
                 <ListItemAvatar>
-                  {/* <Avatar alt="Trevor Henderson" src="https://material-ui.com/static/images/avatar/7.jpg" /> */}
                   <Avatar alt={item?.username || ''} src={item?.avatar || " "} />
                 </ListItemAvatar>
                 <ListItemText
@@ -202,12 +207,3 @@ const Rightbar = () => {
 };
 
 export default Rightbar;
-
-
-// {routes[getMenuKey()].map((item: any) => (
-//   <ListItem key={item.label} disablePadding onClick={() => router.push(item.path)}>
-//     <ListItemButton selected={checkActiveMenu() === item.label} sx={{ textAlign: 'center' }}>
-//       <ListItemText primary={item.label} />
-//     </ListItemButton>
-//   </ListItem>
-// ))}

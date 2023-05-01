@@ -35,10 +35,6 @@ export default function Login() {
     const handleSubmit = (event: React.FormEvent<HTMLFormElement>) => {
         event.preventDefault();
         const data = new FormData(event.currentTarget);
-        // console.log({
-        //     email: data.get('email'),
-        //     password: data.get('password'),
-        // });
         login({
             email: data.get('email'),
             password: data.get('password'),
@@ -98,9 +94,6 @@ export default function Login() {
                             </Button>
                             <Grid container>
                                 <Grid item xs>
-                                    {/* <Link href="#" variant="body2">
-                                        Forgot password?
-                                    </Link> */}
                                 </Grid>
                                 <Grid item>
                                     <Link href={'/register'}  variant="body2">

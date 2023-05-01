@@ -1,11 +1,9 @@
 import { Box, Stack } from '@mui/material';
 import { useState } from "react";
 import MuiNavbar from '../components/MuiNavbar';
-import Sidebar from '../components/Sidebar';
-import Feed from '../components/Feed';
+import NewsFeed from '../components/NewsFeed';
 import Rightbar from '../components/Rightbar';
-// import { ToastContainer } from 'react-toastify';
-// import 'react-toastify/dist/ReactToastify.css';
+import Sidebar from '../components/Sidebar';
 
 export default function Dashboard() {
     const [mode, setMode] = useState("light");
@@ -16,13 +14,10 @@ export default function Dashboard() {
         <MuiNavbar />
         <Stack direction="row" spacing={2} justifyContent="space-between">
         <Sidebar setMode={setMode} mode={mode}/>
-          {/* <CreatePost /> */}
-          <Feed />
+          <NewsFeed />
           <Rightbar />
         </Stack>
-        {/* <Add /> */}
       </Box>
-      {/* <ToastContainer /> */}
     </>
   )
 }

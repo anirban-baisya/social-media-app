@@ -1,36 +1,30 @@
-import { Mail, Notifications, Pets } from "@mui/icons-material";
+import { Mail, Notifications } from "@mui/icons-material";
 import BoltIcon from '@mui/icons-material/Bolt';
-import IconButton from "@mui/material/IconButton";
 import MenuIcon from "@mui/icons-material/Menu";
+import IconButton from "@mui/material/IconButton";
 
+import {
+  Group,
+  Home,
+  Storefront
+} from "@mui/icons-material";
 import {
   AppBar,
   Avatar,
   Badge,
   Box,
-  InputBase,
   Menu,
   MenuItem,
   styled,
   Tab,
   Tabs,
   Toolbar,
-  Typography,
+  Typography
 } from "@mui/material";
 import React, { useState } from "react";
+import { useNavigate } from 'react-router-dom';
 import { useLogout } from "../hooks/use-Auth";
 import { DASHBOARD, FRIENDS, PROFILE } from "../routes/AppRoutes";
-import { useNavigate } from 'react-router-dom';
-import {
-  AccountBox,
-  Article,
-  Group,
-  Home,
-  ModeNight,
-  Person,
-  Settings,
-  Storefront,
-} from "@mui/icons-material";
 
 const pages = [<Home fontSize="small" />, <Group fontSize="small" />, <Storefront fontSize="small" />];
 
@@ -44,12 +38,6 @@ const StyledToolbar = styled(Toolbar)({
   justifyContent: "space-between",
 });
 
-const Search = styled("div")(({ theme }) => ({
-  backgroundColor: "white",
-  padding: "0 10px",
-  borderRadius: theme.shape.borderRadius,
-  width: "40%",
-}));
 
 const Icons = styled(Box)(({ theme }) => ({
   display: "none",
@@ -130,29 +118,12 @@ const MuiNavbar = () => {
               display: { xs: "block", md: "none" },
             }}
           >
-            {/* <List
-                  sx={{
-                    // selected and (selected + hover) states
-                    "&& .Mui-selected, && .Mui-selected:hover": {
-                      bgcolor: "red",
-                      "&, & .MuiListItemIcon-root": {
-                        color: "pink",
-                      },
-                    },
-                    // hover states
-                    "& .MuiListItemButton-root:hover": {
-                      bgcolor: "orange",
-                      "&, & .MuiListItemIcon-root": {
-                        color: "yellow",
-                      },
-                    },
-                  }}
-                > */}
-            {pages.map((page, i) => ( // this is for mobile view
+            
+            {pages.map((page, i:any) => ( // this is for mobile view
               <MenuItem
-                // key={page}
-                // selected={i === activeTab}
-                // onClick={() => handleCloseNavMenu(i)}
+                key={i}
+                selected={i === activeTab}
+                onClick={() => handleCloseNavMenu(i)}
                 sx={{
                   "&.Mui-selected": {
                     color: "green",
@@ -245,13 +216,7 @@ const MuiNavbar = () => {
             />
             </IconButton>
         </Icons>
-        {/* <UserBox onClick={(e) => setOpen(true)}>
-          <Avatar
-            sx={{ width: 30, height: 30 }}
-            src="https://images.pexels.com/photos/846741/pexels-photo-846741.jpeg?auto=compress&cs=tinysrgb&w=1260&h=750&dpr=2"
-          />
-          <Typography variant="body1">John</Typography>
-        </UserBox> */}
+       
       </StyledToolbar>
       <Menu
         id="demo-positioned-menu"

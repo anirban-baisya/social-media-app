@@ -1,4 +1,6 @@
-import { Favorite, FavoriteBorder, MoreVert, Share } from "@mui/icons-material";
+import { Favorite, FavoriteBorder } from "@mui/icons-material";
+import AddCommentIcon from "@mui/icons-material/AddComment";
+import ArrowCircleRightIcon from '@mui/icons-material/ArrowCircleRight';
 import {
   Avatar,
   Card,
@@ -12,15 +14,13 @@ import {
   Paper,
   Typography,
 } from "@mui/material";
-import { useState } from "react";
-import moment from 'moment';
-import { collection, doc, getDoc, onSnapshot, setDoc, snapshotEqual, updateDoc } from "firebase/firestore";
-import { db } from "../services/firebase";
 import IconButton, { IconButtonProps } from "@mui/material/IconButton";
-import { styled } from "@mui/material/styles";
-import AddCommentIcon from "@mui/icons-material/AddComment";
 import { red } from "@mui/material/colors";
-import ArrowCircleRightIcon from '@mui/icons-material/ArrowCircleRight';
+import { styled } from "@mui/material/styles";
+import { collection, doc, getDoc, onSnapshot, setDoc, updateDoc } from "firebase/firestore";
+import moment from 'moment';
+import { useState } from "react";
+import { db } from "../services/firebase";
 
 const getUInfofromStorage = (type: any) => {
   const userInfo = JSON.parse(localStorage.getItem('userInfo') || '');
@@ -41,8 +41,7 @@ const ExpandMore = styled((props: ExpandMoreProps) => {
   })
 }));
 
-const Post = ({ name, createdAt, img, desc, taggedPerson, postId, shortedArr }: any) => {
-  // console.log(postId,'props postId --');
+const Post = ({ name, createdAt, img, desc, taggedPerson, postId }: any) => {
 
   const [expanded, setExpanded] = useState(false);
 
@@ -50,55 +49,68 @@ const Post = ({ name, createdAt, img, desc, taggedPerson, postId, shortedArr }: 
     setExpanded(!expanded);
   };
 
-
-//   const selectedPostId = shortedArr.filter((element:any) => element.postId === postId)
-// console.log(selectedPostId,'selectedPostId--');
-
-  //   const [createPostData, setCreatePostData] = useState<any>({
-  //     base64Img: '',
-  //     bio: '',
-  // });
   const handleLikeClick = async () => {
-    // const getData:any = doc(db, "users", getUInfofromStorage('email'), "posts" ,postId )
-    const getData:any = doc(db, "users", getUInfofromStorage('email'), "posts" ,postId )
+    const getData: any = doc(db, "users", getUInfofromStorage('email'), "posts", postId)
     await getDoc(getData)
-    .then(async (results:any) => {
-      let payload:any =''
-      if(results.data().like){
-        payload= {like: results.data().like + 1}
-      } else{
-        payload= {like:  1}
-      }
-      // const payload = {like: results.data().like + 1} //all likes
-     console.log(payload,'payload');
-     await updateDoc(getData, payload)
-     .then(async() => {
-      // const userLikeComment = await doc(db, "users", getUInfofromStorage('email'), "posts" ,postId, 'comments', getUInfofromStorage('email') )
-      const userLikeComment:any = await collection(db, "users", getUInfofromStorage('email'), "posts" ,postId, 'comments' )
-      console.log(userLikeComment,'userLikeComment --');
-       onSnapshot(userLikeComment, async (snapshot:any)=> {
-        const likeComments:any = await doc(db, "users", getUInfofromStorage('email'), "posts" ,postId, 'comments', getUInfofromStorage('email') )
-          console.log(snapshot.docs,'---datat');
-          if (snapshot.docs.length > 0) {
-            await updateDoc(likeComments,payload)
-          } else{
-            await setDoc(likeComments,payload)
-          }
+      .then(async (results: any) => {
+        let payload: any = ''
+        if (results.data().like) {
+          payload = { like: results.data().like + 1 }
+        } else {
+          payload = { like: 1 }
+        }
+        console.log(payload, 'payload');
+        await updateDoc(getData, payload)
+          .then(async () => {
+            const userLikeComment: any = await collection(db, "users", getUInfofromStorage('email'), "posts", postId, 'comments')
+            console.log(userLikeComment, 'userLikeComment --');
+            onSnapshot(userLikeComment, async (snapshot: any) => {
+              const likeComments: any = await doc(db, "users", getUInfofromStorage('email'), "posts", postId, 'comments', getUInfofromStorage('email'))
+              console.log(snapshot.docs, '---datat');
+              if (snapshot.docs.length > 0) {
+                await updateDoc(likeComments, payload)
+              } else {
+                await setDoc(likeComments, payload)
+              }
+            })
+
+            await updateDoc(userLikeComment, payload)
+              .catch((e) => {
+                console.log(e, 'error');
+              })
+          })
+
       })
-      // .then((res:any)=>{
-      //   console.log(res.docs,'---datat');
-        
-      // })
-      // const getComments =
-      await updateDoc(userLikeComment, payload)
-      .catch((e)=>{
-        console.log(e,'error');
-      })
-    })
-     
-  })
-  
+
   };
+
+
+  // const userLikes = (async () => {
+  //   const docRef = doc(db, "users", getUInfofromStorage('email'), "posts", postId); //get user data from database
+  //   await getDoc(docRef)
+  //     .then((res: any) => {
+  //       console.log(res.data().like, 'res.data().like --');
+
+  //       // localStorage.setItem('userInfo', JSON.stringify(res.data() ) )
+  //       // setProfileData({...profileData, name: res.data().username, email: res.data().email, bio: res.data().bio, base64Img:res.data().avatar })
+  //     })
+
+  // })
+
+  // useEffect(() => {
+  //   userLikes()
+  // }, [])
+
+  const addComment = (async () => {
+    const docRef = doc(db, "users", getUInfofromStorage('email'), "posts", postId); //get user data from database
+    await getDoc(docRef)
+      .then((res: any) => {
+        // console.log(res.data().like, 'res.data().like --');
+      })
+
+  })
+
+
 
   return (
     <Card sx={{ margin: 5 }}>
@@ -106,10 +118,7 @@ const Post = ({ name, createdAt, img, desc, taggedPerson, postId, shortedArr }: 
         avatar={
           <Avatar sx={{ bgcolor: "red" }} aria-label="recipe" alt={name} src=" " />
         }
-        // action={
-        //   <IconButton aria-label="settings">
-        //   </IconButton>
-        // }
+
         title={taggedPerson.length > 0 ? `${name} is with ${taggedPerson[0]} ${taggedPerson.length > 1 && `and ${taggedPerson.length - 1} others`}` : name}
         subheader={moment(createdAt).format("MM MMM [at] hh:mm a")}
       />
@@ -131,10 +140,7 @@ const Post = ({ name, createdAt, img, desc, taggedPerson, postId, shortedArr }: 
             checkedIcon={<Favorite sx={{ color: "red" }} />}
           />
         </IconButton>
-        {/* <IconButton aria-label="share">
-          <Share />
-        </IconButton> */}
-      <ExpandMore
+        <ExpandMore
           expand={expanded}
           onClick={handleExpandClick}
           aria-expanded={expanded}
@@ -142,7 +148,7 @@ const Post = ({ name, createdAt, img, desc, taggedPerson, postId, shortedArr }: 
         >
           <AddCommentIcon />
         </ExpandMore>
-        
+
       </CardActions>
 
       <Collapse in={expanded} timeout="auto" unmountOnExit>
@@ -152,11 +158,11 @@ const Post = ({ name, createdAt, img, desc, taggedPerson, postId, shortedArr }: 
           <CardHeader
             avatar={
               <Avatar sx={{ bgcolor: red[500] }} aria-label="recipe">
-                R
+                S
               </Avatar>
             }
-            title="cool"
-            subheader="September 14, 2016"
+            title="Snehasis"
+            subheader="Cool :)"
           />
 
           <Paper

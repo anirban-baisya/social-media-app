@@ -1,24 +1,22 @@
-import React, { useRef, useState } from "react";
 import EditIcon from '@mui/icons-material/Edit';
 import {
+    Avatar,
     Badge,
-    TextField,
     Button,
     Card,
-    CardHeader,
-    Avatar,
-    CardContent,
     CardActions,
+    CardContent,
+    CardHeader,
     Grid,
-    IconButton
+    IconButton,
+    TextField
 } from "@mui/material";
 import { red } from '@mui/material/colors';
+import { doc, getDoc, updateDoc } from "firebase/firestore";
+import { useEffect, useRef, useState } from "react";
+import { toast } from "react-toastify";
+import { db } from "../services/firebase";
 
-// let base64img
-// const onLoad = (fileString:any) => {
-//     console.log(fileString);
-//     return fileString
-//   };
 
 //   const getBase64 = (file:any) => {
 //     let reader = new FileReader();
@@ -27,6 +25,11 @@ import { red } from '@mui/material/colors';
 //       onLoad(reader.result);
 //     };
 //   }
+
+const getUInfofromStorage = (type: any) => {
+    const userInfo = JSON.parse(localStorage.getItem('userInfo') || '');
+    return userInfo ? userInfo[type] : "";
+}
 
 const getBase64 = (file: any) =>
     new Promise((resolve, reject) => {
@@ -51,9 +54,58 @@ export default function Profile() {
         const file = files[0];
         const imgBase64 = await getBase64(file);
         // setFiles(imgBase64)
-        setProfileData({...profileData ,base64Img: imgBase64  })
+        setProfileData({ ...profileData, base64Img: imgBase64 })
     };
-    console.log(profileData.base64Img, 'base64img---');
+
+    const getProfileDetails = (async () => {
+        const docRef = doc(db, "users", getUInfofromStorage('email')); //get user data from database
+        await getDoc(docRef)
+            .then((res: any) => {
+                localStorage.setItem('userInfo', JSON.stringify(res.data()))
+                setProfileData({ ...profileData, name: res.data().username, email: res.data().email, bio: res.data().bio, base64Img: res.data().avatar })
+            })
+
+    })
+
+    const updateProfileDetails = (async () => {
+        const getData: any = doc(db, "users", getUInfofromStorage('email'))
+        const payload = { 'bio': profileData?.bio, 'avatar': profileData?.base64Img }
+
+        await updateDoc(getData, payload)
+            .then((res: any) => {
+                console.log(res, 'response');
+                toast.success("Profile Details Updated", {
+                    position: "top-right",
+                    autoClose: 5000,
+                    hideProgressBar: false,
+                    closeOnClick: true,
+                    pauseOnHover: true,
+                    draggable: true,
+                    progress: undefined,
+                    theme: "colored",
+                })
+                getProfileDetails()
+                // localStorage.setItem('userInfo', JSON.stringify(res.data() ) )
+                // setProfileData({...profileData, name: res.data().username, email: res.data().email, bio: res.data().bio, base64Img:res.data().avatar })
+            }).catch((e) => {
+                console.log(e, 'error');
+                toast.error("Something went wrong or image size exceeded", {
+                    position: "top-right",
+                    autoClose: 5000,
+                    hideProgressBar: false,
+                    closeOnClick: true,
+                    pauseOnHover: true,
+                    draggable: true,
+                    progress: undefined,
+                    theme: "colored",
+                })
+            });
+
+    })
+
+    useEffect(() => {
+        getProfileDetails()
+    }, [])
 
     return (
         <>
@@ -73,7 +125,6 @@ export default function Profile() {
                                     anchorOrigin={{ vertical: "bottom", horizontal: "right" }}
                                     badgeContent={
                                         <EditIcon sx={{ backgroundColor: 'Pink', borderRadius: '20px', padding: 0.6 }} />
-                                        // <SmallAvatar alt="Remy Sharp" src="/static/images/avatar/1.jpg" />
                                     }
                                 >
                                     <Avatar
@@ -84,8 +135,7 @@ export default function Profile() {
                                         }}
                                         aria-label="recipe"
                                         alt={profileData?.name}
-                                    src={profileData?.base64Img ||`/static/images/avatar/1.jpg`}
-                                    // src={base64img}
+                                        src={profileData?.base64Img || `/static/images/avatar/1.jpg`}
                                     />
                                     {/* <Avatar alt={item?.name || ''} src={item?.img || " "} /> */}
 
@@ -97,46 +147,30 @@ export default function Profile() {
                     />
 
                     <CardContent>
-                        {/* <Typography variant="body2" color="text.secondary">
-          This impressive paella is a perfect party dish and a fun meal to cook
-          together with your guests. Add 1 cup of frozen peas along with the mussels,
-          if you like.
-        </Typography> */}
                         <TextField
                             id="standard-multiline-static"
                             label="Bio :-"
                             multiline
                             rows={4}
-                            // defaultValue="Default Value"
                             value={profileData?.bio}
-                            onChange={(e) => setProfileData({...profileData, bio: e.target.value })}
+                            onChange={(e) => setProfileData({ ...profileData, bio: e.target.value })}
                             variant="standard"
                             fullWidth
                         />
                     </CardContent>
                     <CardActions disableSpacing>
-                        {/* <IconButton aria-label="add to favorites">
-          <FavoriteIcon />
-        </IconButton>*/}
-                        <Button>Update</Button>
-                        {/* <ExpandMore
-          expand={expanded}
-          onClick={handleExpandClick}
-          aria-expanded={expanded}
-          aria-label="show more"
-          >
-          <ExpandMoreIcon />
-        </ExpandMore> */}
+
+                        <Button onClick={() => updateProfileDetails()}>Update</Button>
+
                     </CardActions>
                 </Card>
             </Grid>
 
             <input
-                accept="image/*"    
+                accept="image/*"
                 type="file"
                 style={{ display: 'none' }}
                 onChange={onChange}
-                // onChange={(e) => getBase64(e.target.files)}
                 ref={fileInputRef}
             />
         </>
