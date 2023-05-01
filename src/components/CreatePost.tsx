@@ -265,8 +265,8 @@ export default function CreatePost({setFetchedPostDetails} :any) {
                                             secondaryAction={
                                                 <Checkbox
                                                     edge="end"
-                                                    onChange={handleToggle(value?.name)}
-                                                    checked={checked.indexOf(value.id) !== -1}
+                                                    onChange={handleToggle(value?.username)}
+                                                    checked={checked.indexOf(value.username) !== -1}
                                                     inputProps={{ "aria-labelledby": labelId }}
                                                 />
                                             }
@@ -275,12 +275,12 @@ export default function CreatePost({setFetchedPostDetails} :any) {
                                             <ListItemButton>
                                                 <ListItemAvatar>
                                                     <Avatar
-                                                        alt={value?.name}
-                                                        src={value.img}
+                                                        alt={value?.username}
+                                                        src={value.avatar}
                                                     />
                                                     {/* <Avatar alt={getUInfofromStorage(displayName) || ''} src={item?.img || " "} />  */}
                                                 </ListItemAvatar>
-                                                <ListItemText id={labelId} primary={value.name} />
+                                                <ListItemText id={labelId} primary={value.username} />
                                             </ListItemButton>
                                         </ListItem>
                                     );

@@ -119,7 +119,7 @@ const Post = ({ name, createdAt, img, desc, taggedPerson, postId }: any) => {
           <Avatar sx={{ bgcolor: "red" }} aria-label="recipe" alt={name} src=" " />
         }
 
-        title={taggedPerson.length > 0 ? `${name} is with ${taggedPerson[0]} ${taggedPerson.length > 1 && `and ${taggedPerson.length - 1} others`}` : name}
+        title={taggedPerson.length > 0 ? `${name} is with ${taggedPerson[0]} ${taggedPerson.length > 1 ? `and ${taggedPerson.length - 1} others` :''}` : name}
         subheader={moment(createdAt).format("MM MMM [at] hh:mm a")}
       />
       <CardMedia
