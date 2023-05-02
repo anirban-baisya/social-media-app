@@ -56,43 +56,47 @@ const Rightbar = () => {
   );
 
 
-  const followFriend = (async (followingFriendId: any , name:any) => {
+  const followFriend = (async (followingFriendId: any, name: any) => {
 
     const usersRef = doc(db, "users", getUInfofromStorage('email')); //update user doc
 
     const getPreviousFollowingList: any = await getDoc(usersRef);
     let dataArr: any = []
-    getPreviousFollowingList?.data()?.followingFriend.map((doc: any) => {
-      dataArr.push(doc)
-    });
+    if (getPreviousFollowingList?.data()?.followingFriend) {
+      getPreviousFollowingList?.data()?.followingFriend.map((doc: any) => {
+        dataArr.push(doc)
+      });
+    } else {
+      await updateDoc(usersRef, { followingFriend: dataArr })
+    }
 
     dataArr.push(followingFriendId)
 
     const payload = { followingFriend: dataArr }
     await updateDoc(usersRef, payload)// update users doc
-    .then(() =>{
-      toast.success(`Following ${name}`, {
-        position: "top-right",
-        autoClose: 5000,
-        hideProgressBar: false,
-        closeOnClick: true,
-        pauseOnHover: true,
-        draggable: true,
-        progress: undefined,
-        theme: "colored",
-    })
-      getFollowerList()
-    })
+      .then(() => {
+        toast.success(`Following ${name}`, {
+          position: "top-right",
+          autoClose: 5000,
+          hideProgressBar: false,
+          closeOnClick: true,
+          pauseOnHover: true,
+          draggable: true,
+          progress: undefined,
+          theme: "colored",
+        })
+        getFollowerList()
+      })
 
   });
 
-  const unFollowFriend = (async (unfollowingFriendId: any, name:any) => {
+  const unFollowFriend = (async (unfollowingFriendId: any, name: any) => {
     const usersRef = doc(db, "users", getUInfofromStorage('email')); //update user doc
 
-      await updateDoc(usersRef, {
+    await updateDoc(usersRef, {
       'followingFriend': arrayRemove(unfollowingFriendId)
-      })
-      .then(() =>{
+    })
+      .then(() => {
         toast.success(`Unfollow ${name}`, {
           position: "top-right",
           autoClose: 5000,
@@ -102,10 +106,10 @@ const Rightbar = () => {
           draggable: true,
           progress: undefined,
           theme: "colored",
-      })
+        })
         getFollowerList()
       })
-    
+
 
 
   });
@@ -161,16 +165,16 @@ const Rightbar = () => {
           Add Following
         </Typography>
         <List sx={{ width: '100%', maxWidth: 360, bgcolor: 'background.paper' }}>
-          {allUserList?.filter((element:any) => (element.id != getUInfofromStorage('email')) 
-          // FollwerList.includes(element.id) 
-          // (FollwerList.map((e:any) => (e.id != element.id )) )
-          //.filter((e:any) =>  FollwerList.includes(e.id ))
+          {allUserList?.filter((element: any) => (element.id != getUInfofromStorage('email'))
+            // FollwerList.includes(element.id) 
+            // (FollwerList.map((e:any) => (e.id != element.id )) )
+            //.filter((e:any) =>  FollwerList.includes(e.id ))
           ).map((item: any) => (
             <>
               <ListItem alignItems="flex-start"
                 secondaryAction={
                   <Stack direction="column" gap={1} mt={2} mb={3}>
-                    <Button onClick={() => followFriend(item?.email, item?.username )}>Follow</Button>
+                    <Button onClick={() => followFriend(item?.email, item?.username)}>Follow</Button>
                   </Stack>
                 }
               >
